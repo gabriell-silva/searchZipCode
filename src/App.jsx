@@ -1,4 +1,4 @@
-import { Box, Flex, Heading, HStack, IconButton, Input, InputGroup, InputRightElement, SimpleGrid, Skeleton, Text, VStack } from '@chakra-ui/react'
+import { Box, Center, Flex, Heading, HStack, IconButton, Input, InputGroup, InputRightElement, SimpleGrid, Skeleton, Text, VStack } from '@chakra-ui/react'
 import axios from 'axios'
 import { MagnifyingGlass } from 'phosphor-react' 
 import { useEffect, useState } from 'react'
@@ -11,6 +11,14 @@ export default function App() {
   const [isLoaded, setIsLoaded] = useState(false)
 
   const toast = useToast()
+
+  const formatterZipCode = () =>{
+    const newZipCode = input.replace(/\D/g, '')
+
+    const isValidZipCode = /^[0-9]{8}$/.test(newZipCode)
+    
+    return isValidZipCode
+  }
 
   const requestApi = async(zipCode) => {
     const uri = axios.create({
@@ -29,7 +37,7 @@ export default function App() {
       if(error) {
         
         toast({
-          title: "Cep não existe!"
+          title: "Cep informado, inexiste!"
         })
         
         setIsLoaded(false)
@@ -39,6 +47,8 @@ export default function App() {
   }
 
   const handleButtonSearch = () => {
+    formatterZipCode()
+
     if(!input) return
 
     return requestApi(input)
@@ -52,7 +62,7 @@ export default function App() {
     <HStack bg="yellow.300" justifyContent="center" h="100vh" w="full">
       <VStack 
         height={["60vh","60vh","60vh" ,"60vh"]} 
-        width={["96vw","72vw","64vw" ,"28vw"]}
+        width={["96vw","72vw","64vw" ,"44vw", "28vw"]}
         gap="2rem"
         borderX="4px"
         borderRadius=".8rem"
@@ -61,22 +71,23 @@ export default function App() {
 
         <Heading fontSize="md" color="blue.400">Busca CEP</Heading>
 
-        <HStack>
+        <HStack  width="full" px=".8rem">
           <InputGroup>
             <Input
               type="text"
-              width="20rem"
+              px="1rem"
               fontSize="xs"
               variant="flushed"
               borderColor="gray.500"
               focusBorderColor="gray.600"
               transition="all 0.4s"
-              placeholder="Informe o cep..."
+              placeholder="Informe o cep"
               onChange={(e) => setInput(e.target.value)}
             />
               <IconButton
                 bg="none"
                 _hover="none"
+                colorScheme="none"
                 ml="-2rem"
                 cursor="pointer"
                 icon={<MagnifyingGlass  color="gray"/>}
@@ -85,10 +96,13 @@ export default function App() {
           </InputGroup>
         </HStack>
         
-        <HStack width="22rem">
-          <Skeleton isLoaded={isLoaded}>
+        <HStack width="full" alignItems="center" justifyContent="center">
+          <Skeleton mx=".8rem" isLoaded={isLoaded}>
             {Object.keys(datas).length > 0 && (
-              <Flex gap=".8rem" mx=".8rem" flexWrap="wrap" borderBottom="1px" justifyContent="center">
+              <SimpleGrid 
+                columns={[1, 2, 2, 3, 3]} 
+                gap=".8rem"
+              >
                 <Box>
                   <Text fontWeight="semibold">Cep</Text>
                   <Text>{datas.cep}</Text>
@@ -109,7 +123,11 @@ export default function App() {
                   <Text fontWeight="semibold">UF</Text>
                   <Text>{datas.uf}</Text>
                 </Box>
-              </Flex>
+                <Box>
+                  <Text fontWeight="semibold">IBGE</Text>
+                  <Text>{datas.ibge}</Text>
+                </Box>
+              </SimpleGrid>
             )}
           </Skeleton>
         </HStack>
